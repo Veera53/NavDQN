@@ -7,17 +7,17 @@ import random
 import numpy as np
 from collections import deque
 
-# -----------------------------
-# 1️⃣ SETUP ENVIRONMENT
-# -----------------------------
+
+#  SETUP ENVIRONMENT
+
 env = gym.make("CartPole-v1")  # Replace with your custom robot environment if needed
 state_size = env.observation_space.shape[0]
 action_size = env.action_space.n
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# -----------------------------
-# 2️⃣ BUILD DQN MODEL
-# -----------------------------
+
+#  BUILD DQN MODEL
+
 class DQN(nn.Module):
     def __init__(self, state_size, action_size):
         super(DQN, self).__init__()
@@ -36,9 +36,9 @@ target_net = DQN(state_size, action_size).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()  # Target network is not trained directly
 
-# -----------------------------
-# 3️⃣ EXPERIENCE REPLAY BUFFER
-# -----------------------------
+
+# EXPERIENCE REPLAY BUFFER
+
 class ReplayMemory:
     def __init__(self, capacity=10000):
         self.memory = deque(maxlen=capacity)
@@ -54,9 +54,8 @@ class ReplayMemory:
 
 memory = ReplayMemory()
 
-# -----------------------------
-# 4️⃣ HYPERPARAMETERS
-# -----------------------------
+# HYPERPARAMETERS
+
 batch_size = 64
 gamma = 0.99  # Discount factor
 epsilon = 1.0  # Initial exploration rate
@@ -68,9 +67,8 @@ num_episodes = 500  # Training episodes
 
 optimizer = optim.Adam(policy_net.parameters(), lr=learning_rate)
 
-# -----------------------------
-# 5️⃣ CHOOSE ACTION (EPSILON-GREEDY)
-# -----------------------------
+# CHOOSE ACTION (EPSILON-GREEDY)
+
 def select_action(state, epsilon):
     if random.random() < epsilon:
         return random.randint(0, action_size - 1)  # Explore: random action
@@ -79,9 +77,9 @@ def select_action(state, epsilon):
             state_tensor = torch.tensor(state, dtype=torch.float32).to(device)
             return torch.argmax(policy_net(state_tensor)).item()  # Exploit: best action
 
-# -----------------------------
-# 6️⃣ TRAINING LOOP
-# -----------------------------
+
+#  TRAINING LOOP
+
 for episode in range(num_episodes):
     state = env.reset()
     state = state[0] if isinstance(state, tuple) else state  # Handle tuple return
@@ -135,15 +133,15 @@ for episode in range(num_episodes):
     # Print progress
     print(f"Episode {episode+1}/{num_episodes}, Total Reward: {total_reward}, Epsilon: {epsilon:.4f}")
 
-# -----------------------------
-# 7️⃣ SAVE TRAINED MODEL
-# -----------------------------
+
+# SAVE TRAINED MODEL
+
 torch.save(policy_net.state_dict(), "dqn_robot.pth")
 print("Training completed and model saved.")
 
-# -----------------------------
-# 8️⃣ TEST THE TRAINED AI
-# -----------------------------
+
+# TEST THE TRAINED AI
+
 state = env.reset()
 state = state[0] if isinstance(state, tuple) else state  # Handle tuple return
 total_reward = 0
